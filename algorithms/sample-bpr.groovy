@@ -19,10 +19,10 @@ bind MFModel toProvider BPRMFModelProvider
 bind BPRTrainingSampler to ImplicitTrainingSampler
 
 set FeatureCount to 25
-set IterationCount to 1000
+set IterationCount to 100
 set BatchSize to 10000
 
-def lrGen = new ExponentialDistribution(1.0e-3)
+def lrGen = new ExponentialDistribution(0.5e-3)
 def rgGen = new ExponentialDistribution(1.0e-2)
 
 for (int i = 0; i < 100; i++) {

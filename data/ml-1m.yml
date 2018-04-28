@@ -1,0 +1,5 @@
+ratings:
+  file: ml-1m/ratings.csv
+  format: csv
+  header: false
+  entity_type: rating

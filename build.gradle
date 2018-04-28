@@ -30,6 +30,7 @@ apply plugin: 'lenskit'
 repositories {
     // check for a local repository containing a test version of LensKit
     if (project.file('lenskit-current-repo').exists()) {
+        logger.lifecycle('enabling lenskit-current-repo')
         maven {
             url project.uri('lenskit-current-repo')
         }
@@ -83,13 +84,26 @@ task fetchData {
     }
 }
 
-task crossfold(type: Crossfold, group: 'evaluate') {
+task crossfoldML100K(type: Crossfold, group: 'evaluate') {
     // download data before evaluating
     dependsOn fetchData
+    
+    dataSetName = 'ML-100K'
 
     input 'data/ml-100k.yml'
-    // test on random 1/5 of each user's ratings
-    holdoutFraction(0.2, 'random')
+    // test on random 5 ratings from each user
+    holdout(5, 'random')
+    // use 5-fold cross-validation
+    partitionCount 5
+}
+
+task crossfoldML1M(type: Crossfold, group: 'evaluate') {
+    // download data before evaluating
+    dependsOn fetchData
+    dataSetName = 'ML-1M'
+
+    input 'data/ml-1m.yml'
+    holdout(5, 'random')
     // use 5-fold cross-validation
     partitionCount 5
 }
@@ -101,7 +115,8 @@ task evaluate(type: TrainTest, group: 'evaluate') {
     logFileLevel = 'DEBUG'
 
     // we add our crossfold task as evaluation input
-    dataSet crossfold
+    dataSet crossfoldML100K
+    dataSet crossfoldML1M
 
     // send the output to appropriate files
     outputFile = "$buildDir/eval-results.csv"
@@ -113,7 +128,7 @@ task evaluate(type: TrainTest, group: 'evaluate') {
     algorithm 'Custom', 'algorithms/custom.groovy'
     algorithm 'Popular', 'algorithms/popular.groovy'
     algorithm 'BPR', 'algorithms/bpr.groovy'
-    algorithm 'algorithms/sweep-bpr.groovy'
+    // algorithm 'algorithms/sample-bpr.groovy'
 
     // and some evaluation tasks and metrics
     predict {
