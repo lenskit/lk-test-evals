@@ -1,4 +1,7 @@
+import org.apache.commons.math3.distribution.UniformRealDistribution
 import org.grouplens.lenskit.iterative.IterationCount
+import org.grouplens.lenskit.iterative.LearningRate
+import org.grouplens.lenskit.iterative.RegularizationTerm
 import org.lenskit.api.ItemScorer
 import org.lenskit.bias.BiasModel
 import org.lenskit.bias.ZeroBiasModel
@@ -6,8 +9,8 @@ import org.lenskit.mf.BiasedMFItemScorer
 import org.lenskit.mf.MFModel
 import org.lenskit.mf.bpr.BPRMFModelProvider
 import org.lenskit.mf.bpr.BPRTrainingSampler
-import org.lenskit.mf.bpr.ImplicitTrainingSampler
 import org.lenskit.mf.bpr.BatchSize
+import org.lenskit.mf.bpr.ImplicitTrainingSampler
 import org.lenskit.mf.funksvd.FeatureCount
 
 bind ItemScorer to BiasedMFItemScorer
@@ -18,3 +21,17 @@ bind BPRTrainingSampler to ImplicitTrainingSampler
 set FeatureCount to 25
 set IterationCount to 1000
 set BatchSize to 10000
+
+def lrGen = new UniformRealDistribution(1.0e-6, 1.0e-2)
+def rgGen = new UniformRealDistribution(0, 0.1)
+
+for (int i = 0; i < 100; i++) {
+    def lr = lrGen.sample()
+    def rg = rgGen.sample()
+    algorithm("BPR") {
+        set LearningRate to lr
+        attributes["Rate"] = lr
+        set RegularizationTerm to rg
+        attributes["Reg"] = rg
+    }
+}
