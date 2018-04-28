@@ -128,6 +128,7 @@ task evaluate(type: TrainTest, group: 'evaluate') {
     algorithm 'Custom', 'algorithms/custom.groovy'
     algorithm 'Popular', 'algorithms/popular.groovy'
     algorithm 'BPR', 'algorithms/bpr.groovy'
+    // algorithm 'PF', 'algorithms/pmf.groovy'
     // algorithm 'algorithms/sample-bpr.groovy'
 
     // and some evaluation tasks and metrics

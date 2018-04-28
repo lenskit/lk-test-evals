@@ -1,3 +1,4 @@
+import org.apache.commons.math3.random.RandomGenerator
 import org.grouplens.lenskit.iterative.IterationCount
 import org.grouplens.lenskit.iterative.LearningRate
 import org.grouplens.lenskit.iterative.RegularizationTerm
@@ -11,7 +12,9 @@ import org.lenskit.mf.bpr.BPRTrainingSampler
 import org.lenskit.mf.bpr.ImplicitTrainingSampler
 import org.lenskit.mf.bpr.BatchSize
 import org.lenskit.mf.funksvd.FeatureCount
+import org.lenskit.util.XoRoShiRo128PlusRandomGenerator
 
+bind RandomGenerator to XoRoShiRo128PlusRandomGenerator
 bind ItemScorer to BiasedMFItemScorer
 bind BiasModel to ZeroBiasModel
 bind MFModel toProvider BPRMFModelProvider
