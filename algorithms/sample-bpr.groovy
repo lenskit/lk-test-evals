@@ -1,4 +1,4 @@
-import org.apache.commons.math3.distribution.UniformRealDistribution
+import org.apache.commons.math3.distribution.ExponentialDistribution
 import org.grouplens.lenskit.iterative.IterationCount
 import org.grouplens.lenskit.iterative.LearningRate
 import org.grouplens.lenskit.iterative.RegularizationTerm
@@ -22,11 +22,11 @@ set FeatureCount to 25
 set IterationCount to 1000
 set BatchSize to 10000
 
-def lrGen = new UniformRealDistribution(1.0e-6, 1.0e-2)
-def rgGen = new UniformRealDistribution(0, 0.1)
+def lrGen = new ExponentialDistribution(1.0e-3)
+def rgGen = new ExponentialDistribution(1.0e-2)
 
 for (int i = 0; i < 100; i++) {
-    def lr = lrGen.sample()
+    def lr = lrGen.sample() + 1.0e-6
     def rg = rgGen.sample()
     algorithm("BPR") {
         set LearningRate to lr
