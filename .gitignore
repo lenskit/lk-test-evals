@@ -5,7 +5,13 @@
 *.iml
 .ipynb_checkpoints
 /data/ml-100k
+/data/ml-1m
 *.zip
 gradle.properties
 /*-repo
 /lenskit
+/.classpath
+/.project
+/.settings
+/bin
+/.vscode

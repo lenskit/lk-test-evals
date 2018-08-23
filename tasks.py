@@ -1,14 +1,18 @@
 import os.path
 from pathlib import Path
 from invoke import task
-import logging
+import logging, logging.config
+import yaml
 
 import numpy as np
 import pandas as pd
 
 from lenskit import batch
 
-logging.basicConfig(level='INFO', format='{levelname} {name} {message}', style='{')
+with open('logging.yaml') as lf:
+    log_config = yaml.load(lf)
+
+logging.config.dictConfig(log_config)
 
 _log = logging.getLogger('lk-test-evals')
 
@@ -27,17 +31,21 @@ def train_lenskit(c, algorithm='item-item', data='ml-100k', output=None):
         output = 'build/lenskit/{}-{}.model'.format(algorithm, data)
 
     lk = Path('lenskit/bin/lenskit')
+    log = 'build/lenskit/{}-{}.log'.format(algorithm, data)
     
-    c.run('{} train-model --data-source data/{}.yml -o {} algorithms/{}.groovy'.format(lk, data, output, algorithm))
+    c.run('{} --log-file {} --log-file-level=TRACE train-model --data-source data/{}.yml -o {} algorithms/{}.groovy'.format(lk, log, data, output, algorithm))
 
 
 @task(ensure_directories)
-def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None):
+def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=False):
     if output is None:
         output = 'build/lkpy/{}-{}.hdf'.format(algorithm, data)
     
     import algorithms
     import datasets
+
+    if debug:
+        logging.getLogger('lenskit').setLevel('DEBUG')
 
     a = getattr(algorithms, algorithm.replace('-', '_'))
     ds = getattr(datasets, data.replace('-', '_'))
@@ -46,6 +54,7 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None):
     model = a.train(ds)
     _log.info('saving model to %s', output)
     a.save_model(model, output)
+    logging.getLogger('lenskit').setLevel('INFO')
 
 
 @task(ensure_directories)
@@ -71,7 +80,7 @@ def sample_users(c, data='ml-100k', nusers=100, nitems=20, force=False):
     pairs.to_csv(file, header=False, index=False)
 
 
-@task(pre=[sample_users, train_lenskit])
+@task
 def predict_lenskit(c, algorithm='item-item', data='ml-100k', model=None, output=None):
     if model is None:
         model = 'build/lenskit/{}-{}.model'.format(algorithm, data)
@@ -83,7 +92,7 @@ def predict_lenskit(c, algorithm='item-item', data='ml-100k', model=None, output
     c.run('{} predict --data-source data/{}.yml -m {} -B {} -o {}'.format(lk, data, model, pair_file, output))
 
 
-@task(pre=[sample_users, train_lkpy])
+@task
 def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=None):
     if model is None:
         model = 'build/lkpy/{}-{}.hdf'.format(algorithm, data)
@@ -100,6 +109,7 @@ def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=No
     pairs = pd.read_csv(pair_file, names=['user', 'item'])
     _log.info('predicting for %d pairs', len(pairs))
     preds = batch.predict(a, pairs, model=mod)
+    _log.info('writing predictions to %s', output)
     preds.to_csv(output, index=False)
 
 

@@ -1,0 +1,6 @@
+ratings:
+  file: ml-1m/ratings.dat
+  format: delimited
+  delimiter: "::"
+  header: false
+  entity_type: rating
