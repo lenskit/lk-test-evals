@@ -12,4 +12,5 @@ within (UserVectorNormalizer) {
     bind BiasModel to ItemBiasModel
 }
 set NeighborhoodSize to 20
+bind (ItemSimilarityThreshold, Threshold) to RealThreshold
 set ThresholdValue to 1.0e-6
