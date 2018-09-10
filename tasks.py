@@ -87,9 +87,10 @@ def predict_lenskit(c, algorithm='item-item', data='ml-100k', model=None, output
     if output is None:
         output = 'build/lenskit/{}-{}-preds.csv'.format(algorithm, data)
     pair_file = 'build/pairs-{}.csv'.format(data)
+    log = 'build/lenskit/{}-{}-predict.log'.format(algorithm, data)
     
     lk = Path('lenskit/bin/lenskit')
-    c.run('{} predict --data-source data/{}.yml -m {} -B {} -o {}'.format(lk, data, model, pair_file, output))
+    c.run('{} --log-file={} --log-file-level=DEBUG predict --data-source data/{}.yml -m {} -B {} -o {}'.format(lk, log, data, model, pair_file, output))
 
 
 @task
