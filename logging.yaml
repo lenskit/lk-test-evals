@@ -15,7 +15,7 @@ handlers:
     formatter: simple
     filename: 'build/lkpy.log'
     encoding: utf8
-    mode: 'w'
+    mode: 'a'
 loggers:
   lk-test-evals:
     level: DEBUG

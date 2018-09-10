@@ -50,7 +50,7 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=Fals
     a = getattr(algorithms, algorithm.replace('-', '_'))
     ds = getattr(datasets, data.replace('-', '_'))
     ds = ds()
-    _log.info('training %s on %s', a, data)
+    _log.info('training %s on %s with %d rows', a, data, len(ds))
     model = a.train(ds)
     _log.info('saving model to %s', output)
     a.save_model(model, output)
