@@ -17,8 +17,8 @@ handlers:
     encoding: utf8
     mode: 'a'
 loggers:
-  lk-test-evals:
-    level: DEBUG
+  exp:
+    level: INFO
     handlers: [console,file]
   lenskit:
     level: DEBUG

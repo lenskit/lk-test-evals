@@ -14,7 +14,7 @@ with open('logging.yaml') as lf:
 
 logging.config.dictConfig(log_config)
 
-_log = logging.getLogger('lk-test-evals')
+_log = logging.getLogger('exp.runner')
 
 @task
 def ensure_directories(c):
@@ -112,6 +112,24 @@ def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=No
     preds = batch.predict(a, pairs, model=mod)
     _log.info('writing predictions to %s', output)
     preds.to_csv(output, index=False)
+
+
+@task
+def time_train(c, algorithm='item-item', data='ml-100k', type='openmp', threads=None, output='build/timing.csv', n=10, debug=False):
+    import ii_scaling
+
+    import algorithms
+    import datasets
+
+    if debug:
+        logging.getLogger('lenskit').setLevel('DEBUG')
+
+    a = getattr(algorithms, algorithm.replace('-', '_'))
+    ds = getattr(datasets, data.replace('-', '_'))
+    ds = ds()
+
+    _log.info('timing training of %s on %s with %d rows', a, data, len(ds))
+    ii_scaling.test_and_run(a, ds, output, n, dataset=data, mptype=type, threads=threads)
 
 
 if __name__ == '__main__':
