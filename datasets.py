@@ -7,3 +7,11 @@ def ml_100k():
 def ml_1m():
     return pd.read_csv('data/ml-1m/ratings.dat', sep='::',
                        names=['user', 'item', 'rating', 'timestamp'])
+
+def ml_10m():
+    return pd.read_csv('data/ml-10M100K/ratings.dat', sep='::',
+                       names=['user', 'item', 'rating', 'timestamp'])
+
+def ml_20m():
+    df = pd.read_csv('data/ml-20m/ratings.csv')
+    return df.rename({'movieId': 'item', 'userId': 'user'})

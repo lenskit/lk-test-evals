@@ -6,6 +6,8 @@
 .ipynb_checkpoints
 /data/ml-100k
 /data/ml-1m
+/data/ml-10M100K
+/data/ml-20m
 *.zip
 gradle.properties
 /*-repo
