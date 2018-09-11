@@ -14,4 +14,4 @@ def ml_10m():
 
 def ml_20m():
     df = pd.read_csv('data/ml-20m/ratings.csv')
-    return df.rename({'movieId': 'item', 'userId': 'user'})
+    return df.rename(columns={'movieId': 'item', 'userId': 'user'})
