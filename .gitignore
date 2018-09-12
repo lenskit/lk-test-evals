@@ -19,3 +19,4 @@ gradle.properties
 /.vscode
 *.pyc
 *.pyo
+venv-*
