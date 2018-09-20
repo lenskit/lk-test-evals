@@ -6,6 +6,6 @@ bind ItemScorer to FunkSVDItemScorer
 bind BiasModel to UserItemBiasModel
 
 set BiasDamping to 5
-set FeatureCount to 50
+set FeatureCount to 15
 set LearningRate to 0.001
 set IterationCount to 125
