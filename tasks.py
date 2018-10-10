@@ -7,6 +7,7 @@ import yaml
 
 import numpy as np
 import pandas as pd
+import numba
 
 from lenskit import batch
 
@@ -33,7 +34,7 @@ def train_lenskit(c, algorithm='item-item', data='ml-100k', output=None):
 
     lk = Path('lenskit/bin/lenskit')
     log = 'build/lenskit/{}-{}.log'.format(algorithm, data)
-    
+
     c.run('{} --log-file {} --log-file-level=TRACE train-model --data-source data/{}.yml -o {} algorithms/{}.groovy'.format(lk, log, data, output, algorithm))
 
 
@@ -59,6 +60,10 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=Fals
     _log.info('saving model to %s', output)
     a.save_model(model, output)
     logging.getLogger('lenskit').setLevel('INFO')
+    try:
+        _log.info('used threading layer %s', numba.threading_layer())
+    except ValueError:
+        _log.info('did not use Numba multithreading')
 
 
 @task(ensure_directories)
