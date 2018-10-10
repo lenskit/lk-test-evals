@@ -15,3 +15,7 @@ def ml_10m():
 def ml_20m():
     df = pd.read_csv('data/ml-20m/ratings.csv')
     return df.rename(columns={'movieId': 'item', 'userId': 'user'})
+
+def ml_small():
+    df = pd.read_csv('data/ml-latest-small/ratings.csv')
+    return df.rename(columns={'movieId': 'item', 'userId': 'user'})
