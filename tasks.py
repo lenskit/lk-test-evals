@@ -166,6 +166,22 @@ def sweep(c, algorithm='item-item', data='ml-100k'):
     finally:
         dbc.close()
 
+
+@task
+def probe(c, experiment, data='ml-100k'):
+    import datasets
+    import probes
+
+    ds = getattr(datasets, data.replace('-', '_'))
+    sf = getattr(probes, 'probe_' + experiment.replace('-', '_'))
+
+    _log.info('probing %s on %s', experiment, data)
+    fn = 'build/probe-{}-{}.csv'.format(experiment, data)
+    res = sf(ds())
+    _log.info('finished probe, saving to %s', fn)
+    res.to_csv(fn, index=False)
+
+
 if __name__ == '__main__':
     import invoke.program
     program = invoke.program.Program()
