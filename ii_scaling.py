@@ -26,7 +26,7 @@ def test_and_run(algo, ratings, file='timing.csv', n=10, **kwargs):
     past = None
     if os.path.exists(file):
         past = pd.read_csv(file)
-    
+
     cols = dict(kwargs)
     cols.update({'run': np.arange(n),
                  'time': time_n_trains(algo, ratings, n)})

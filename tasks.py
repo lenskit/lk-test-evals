@@ -124,7 +124,8 @@ def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=No
 
 
 @task
-def time_train(c, algorithm='item-item', data='ml-100k', type='openmp', threads=None, output='build/timing.csv', n=10, debug=False):
+def time_train(c, algorithm='item-item', data='ml-100k', type='openmp',
+               threads=None, mkl_threads=None, output='build/timing.csv', n=10, debug=False):
     import ii_scaling
 
     import algorithms
@@ -138,7 +139,8 @@ def time_train(c, algorithm='item-item', data='ml-100k', type='openmp', threads=
     ds = ds()
 
     _log.info('timing training of %s on %s with %d rows', a, data, len(ds))
-    ii_scaling.test_and_run(a, ds, output, n, dataset=data, mptype=type, threads=threads)
+    ii_scaling.test_and_run(a, ds, output, n, dataset=data, mptype=type,
+                            threads=threads, mkl_threads=mkl_threads)
 
 
 if __name__ == '__main__':
