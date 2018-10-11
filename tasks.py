@@ -111,7 +111,7 @@ def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=No
     pair_file = 'build/pairs-{}.csv'.format(data)
 
     import algorithms
-    
+
     a = getattr(algorithms, algorithm.replace('-', '_'))
     _log.info('loading model from %s', model)
     mod = a.load_model(model)
