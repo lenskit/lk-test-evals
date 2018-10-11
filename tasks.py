@@ -4,6 +4,7 @@ from pathlib import Path
 from invoke import task
 import logging, logging.config
 import yaml
+import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -142,6 +143,28 @@ def time_train(c, algorithm='item-item', data='ml-100k', type='openmp',
     timing.test_and_run(a, ds, output, n, dataset=data, mptype=type,
                         threads=threads, mkl_threads=mkl_threads)
 
+
+@task
+def sweep(c, algorithm='item-item', data='ml-100k'):
+    import datasets
+    import sweeps
+
+    ds = getattr(datasets, data.replace('-', '_'))
+    sf = getattr(sweeps, 'sweep_' + algorithm.replace('-', '_'))
+
+    _log.info('sweeping %s on %s', algorithm, data)
+    fn = 'build/sweep-{}-{}.sqlite'.format(algorithm, data)
+    path = Path(fn)
+    _log.info('saving results to %s', fn)
+    if path.exists():
+        _log.info('renaming old output file')
+        path.replace('build/sweep-{}-{}-old.sqlite'.format(algorithm, data))
+    dbc = sqlite3.connect(fn)
+    try:
+        sf(ds(), dbc)
+        _log.info('finished sweep')
+    finally:
+        dbc.close()
 
 if __name__ == '__main__':
     import invoke.program
