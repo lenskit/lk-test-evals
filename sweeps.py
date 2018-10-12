@@ -2,6 +2,7 @@ import time
 import logging
 
 import pandas as pd
+import fastparquet as fpq
 
 from lenskit import batch, topn
 import lenskit.crossfold as xf
@@ -42,11 +43,12 @@ def _run_algo(runid, train, test, algo, fields):
 def sweep(base, data, instances, fields):
     "Sweep over a set of instances using data."
     runid = 0
-    runs = []
-    preds = []
-    recs = []
 
     for part, (train, test) in enumerate(xf.partition_users(data, 5, xf.SampleN(5))):
+        runs = []
+        preds = []
+        recs = []
+
         _log.info('evaluating popular on partition %d', part)
         r, ps, rs = _run_algo(runid, train, test, basic.Popular(), fields)
         r['Partition'] = part
@@ -68,9 +70,9 @@ def sweep(base, data, instances, fields):
             preds.append(ps)
             recs.append(rs)
 
-        pd.DataFrame(runs).to_csv(base + '-runs.csv', index=False)
-        pd.concat(preds).to_csv(base + '-preds.csv', index=False)
-        pd.concat(recs).to_csv(base + '-recs.csv', index=False)
+        fpq.write(base + '-runs.parquet', pd.DataFrame(runs), append=part > 0)
+        fpq.write(base + '-preds.parquet', pd.concat(preds), append=part > 0)
+        fpq.write(base + '-recs.parquet', pd.concat(recs), append=part > 0)
 
 
 def sweep_als(data, base):
