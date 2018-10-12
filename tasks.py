@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import numba
 
-from lenskit import batch
+from lenskit import batch, util
 
 with open('logging.yaml') as lf:
     log_config = yaml.load(lf)
@@ -149,6 +149,8 @@ def sweep(c, algorithm='item-item', data='ml-100k'):
     import datasets
     import sweeps
 
+    timer = util.Stopwatch()
+
     ds = getattr(datasets, data.replace('-', '_'))
     sf = getattr(sweeps, 'sweep_' + algorithm.replace('-', '_'))
 
@@ -162,7 +164,7 @@ def sweep(c, algorithm='item-item', data='ml-100k'):
     dbc = sqlite3.connect(fn)
     try:
         sf(ds(), dbc)
-        _log.info('finished sweep')
+        _log.info('finished sweep in %s', timer)
     finally:
         dbc.close()
 
