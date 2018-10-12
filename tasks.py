@@ -155,18 +155,11 @@ def sweep(c, algorithm='item-item', data='ml-100k'):
     sf = getattr(sweeps, 'sweep_' + algorithm.replace('-', '_'))
 
     _log.info('sweeping %s on %s', algorithm, data)
-    fn = 'build/sweep-{}-{}.sqlite'.format(algorithm, data)
+    fn = 'build/sweep-{}-{}'.format(algorithm, data)
     path = Path(fn)
     _log.info('saving results to %s', fn)
-    if path.exists():
-        _log.info('renaming old output file')
-        path.replace('build/sweep-{}-{}-old.sqlite'.format(algorithm, data))
-    dbc = sqlite3.connect(fn)
-    try:
-        sf(ds(), dbc)
-        _log.info('finished sweep in %s', timer)
-    finally:
-        dbc.close()
+    sf(ds(), fn)
+    _log.info('finished sweep in %s', timer)
 
 
 @task
