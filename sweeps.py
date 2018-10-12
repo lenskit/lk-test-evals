@@ -35,8 +35,8 @@ def sweep(dbc, data, instances, fields):
 def sweep_als(data, dbc):
     "Sweep the ALS MF algorithm."
     sizes = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150]
-    regs = [0.01, 0.05, 0.1, 0.2]
-    instances = [als.BiasedMF(sz, iterations=15, reg=reg)
+    regs = [0.01, 0.05, 0.1]
+    instances = [als.BiasedMF(sz, iterations=20, reg=reg)
                  for sz in sizes
                  for reg in regs]
     
