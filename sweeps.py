@@ -49,26 +49,16 @@ def sweep(base, data, instances, fields):
         preds = []
         recs = []
 
-        _log.info('evaluating popular on partition %d', part)
-        r, ps, rs = _run_algo(runid, train, test, basic.Popular(), fields)
-        r['Partition'] = part
-        runs.append(r)
-        recs.append(rs)
-        _log.info('evaluating bias on partition %d', part)
-        r, ps, rs = _run_algo(runid, train, test, basic.Bias(damping=5), fields)
-        r['Partition'] = part
-        runs.append(r)
-        preds.append(ps)
-        recs.append(rs)
-
         for algo in instances:
             runid += 1
             _log.info('evaluating %s on partition %d', algo, part)
             r, ps, rs = _run_algo(runid, train, test, algo, fields)
             r['Partition'] = part
             runs.append(r)
-            preds.append(ps)
-            recs.append(rs)
+            if ps is not None:
+                preds.append(ps)
+            if rs is not None:
+                recs.append(rs)
 
         fpq.write(base + '-runs.parquet', pd.DataFrame(runs), append=part > 0)
         fpq.write(base + '-preds.parquet', pd.concat(preds), append=part > 0)
@@ -79,24 +69,27 @@ def sweep_als(data, base):
     "Sweep the ALS MF algorithm."
     sizes = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150]
     regs = [0.01, 0.05, 0.1]
-    instances = [als.BiasedMF(sz, iterations=20, reg=reg)
-                 for sz in sizes
-                 for reg in regs]
+    instances = [basic.Bias(damping=5)]
+    instances += (als.BiasedMF(sz, iterations=20, reg=reg)
+                  for sz in sizes
+                  for reg in regs)
 
     sweep(base, data, instances, ['features', 'regularization'])
 
 
-def sweep_als_both(data, base):
-    "Sweep the ALS MF algorithm."
+def sweep_mf_all(data, base):
+    "Sweep a suite of MF algorithms."
     sizes = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150]
-    instances = [als.BiasedMF(sz, iterations=20, reg=0.1)
-                 for sz in sizes]
-    instances += [als.ImplicitMF(sz, iterations=20, reg=0.1)
-                  for sz in sizes]
-    
+    instances = [basic.Bias(damping=5), basic.Popular()]
+    instances += (als.BiasedMF(sz, iterations=20, reg=0.1)
+                  for sz in sizes)
+    instances += (als.ImplicitMF(sz, iterations=20, reg=0.1)
+                  for sz in sizes)
+    instances += (funksvd.FunkSVD(sz, iterations=125) for sz in sizes)
+
     sweep(base, data, instances, ['features'])
 
-    
+
 def sweep_item_item(data, base):
     "Sweep the item-item k-NN algorithm."
     sizes = [5, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150]
