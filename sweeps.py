@@ -6,7 +6,7 @@ import fastparquet as fpq
 
 from lenskit import batch, topn
 import lenskit.crossfold as xf
-from lenskit.algorithms import als, funksvd, item_knn, basic, Predictor
+from lenskit.algorithms import als, funksvd, item_knn, basic, Predictor, hpf
 
 _log = logging.getLogger('exp.sweep')
 
@@ -24,11 +24,7 @@ def _run_algo(runid, train, test, algo, fields):
     pred_time = time.perf_counter()
     _log.info('computed predictions in %.2fs', pred_time - train_time)
     recs = batch.recommend(algo, model, test.user.unique(), 100,
-                           topn.UnratedCandidates(train))
-    # combine with test ratings for relevance data
-    recs = pd.merge(recs, test, how='left', on=('user', 'item'))
-    # fill in missing 0s
-    recs.loc[recs.rating.isna(), 'rating'] = 0
+                           topn.UnratedCandidates(train), test)
     recs['RunId'] = runid
     rec_time = time.perf_counter()
     _log.info('computed recommendations in %.2fs', rec_time - pred_time)
@@ -86,6 +82,7 @@ def sweep_mf_all(data, base):
     instances += (als.ImplicitMF(sz, iterations=20, reg=0.1)
                   for sz in sizes)
     instances += (funksvd.FunkSVD(sz, iterations=125) for sz in sizes)
+    instances += (hpf.HPF(sz) for sz in sizes)
 
     sweep(base, data, instances, ['features'])
 
