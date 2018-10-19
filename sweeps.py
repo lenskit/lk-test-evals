@@ -60,9 +60,9 @@ def sweep(base, data, instances, fields):
             if rs is not None:
                 recs.append(rs)
 
-        fpq.write(base + '-runs.parquet', pd.DataFrame(runs), append=part > 0)
-        fpq.write(base + '-preds.parquet', pd.concat(preds), append=part > 0)
-        fpq.write(base + '-recs.parquet', pd.concat(recs), append=part > 0)
+        fpq.write(base + '-runs.parquet', pd.DataFrame(runs), append=part > 0, compression='snappy')
+        fpq.write(base + '-preds.parquet', pd.concat(preds), append=part > 0, compression='snappy')
+        fpq.write(base + '-recs.parquet', pd.concat(recs), append=part > 0, compression='snappy')
 
 
 def sweep_als(data, base):
