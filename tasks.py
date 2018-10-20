@@ -158,7 +158,7 @@ def sweep(c, algorithm='item-item', data='ml-100k'):
     fn = 'build/sweep-{}-{}'.format(algorithm, data)
     path = Path(fn)
     _log.info('saving results to %s', fn)
-    sf(ds(), fn)
+    sf(ds(), fn, data)
     _log.info('finished sweep in %s', timer)
 
 
