@@ -79,7 +79,7 @@ def sample_users(c, data='ml-100k', nusers=100, nitems=20, force=False):
     ds = ds()
 
     items = ds.item.unique()
-    users = ds.item.unique()
+    users = ds.user.unique()
 
     users = np.random.choice(users, nusers, replace=False)
     _log.info('samping for %d users', len(users))
