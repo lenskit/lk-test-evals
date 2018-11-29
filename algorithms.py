@@ -1,4 +1,4 @@
-from lenskit.algorithms import item_knn, user_knn, funksvd, basic, als
+from lenskit.algorithms import item_knn, user_knn, funksvd, basic, als as alsm
 
 bias = basic.Bias(damping=5)
 
@@ -8,4 +8,5 @@ item_item = item_knn.ItemItem(20, min_sim=1.0e-6, save_nbrs=5000)
 
 funksvd = funksvd.FunkSVD(15, iterations=125, lrate=0.001)
 
-als = als.BiasedMF(50, iterations=30, reg=0.1)
+als = alsm.BiasedMF(50, iterations=20, reg=0.1)
+als_implicit = alsm.ImplicitMF(50, iterations=20, reg=0.1)
