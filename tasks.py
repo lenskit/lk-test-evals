@@ -55,11 +55,11 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=Fals
     ds = ds()
     start = time.perf_counter()
     _log.info('training %s on %s with %d rows', a, data, len(ds))
-    model = a.train(ds)
+    a.fit(ds)
     elapsed = time.perf_counter() - start
     _log.info('trained %s on %s in %.2fs', a, data, elapsed)
     _log.info('saving model to %s', output)
-    a.save_model(model, output)
+    a.save(output)
     logging.getLogger('lenskit').setLevel('INFO')
     try:
         _log.info('used threading layer %s', numba.threading_layer())
@@ -115,11 +115,11 @@ def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=No
 
     a = getattr(algorithms, algorithm.replace('-', '_'))
     _log.info('loading model from %s', model)
-    mod = a.load_model(model)
+    a.load(model)
 
     pairs = pd.read_csv(pair_file, names=['user', 'item'])
     _log.info('predicting for %d pairs', len(pairs))
-    preds = batch.predict(a, pairs, model=mod)
+    preds = batch.predict(a, pairs)
     _log.info('writing predictions to %s', output)
     preds.to_csv(output, index=False)
 
