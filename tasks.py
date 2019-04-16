@@ -5,6 +5,8 @@ from invoke import task
 import logging, logging.config
 import yaml
 import sqlite3
+import pickle
+import resource
 
 import numpy as np
 import pandas as pd
@@ -42,8 +44,9 @@ def train_lenskit(c, algorithm='item-item', data='ml-100k', output=None):
 @task(ensure_directories)
 def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=False):
     if output is None:
-        output = 'build/lkpy/{}-{}.hdf'.format(algorithm, data)
-    
+        output = 'build/lkpy/{}-{}.pkl'.format(algorithm, data)
+    output = Path(output)
+
     import algorithms
     import datasets
 
@@ -58,8 +61,12 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=Fals
     a.fit(ds)
     elapsed = time.perf_counter() - start
     _log.info('trained %s on %s in %.2fs', a, data, elapsed)
+    res = resource.getrusage(resource.RUSAGE_SELF)
+    _log.info('%.2fs user, %.2fs system, %.1fMB max RSS', res.ru_utime, res.ru_stime, res.ru_maxrss / 1024)
     _log.info('saving model to %s', output)
-    a.save(output)
+    with open(output, 'wb') as outf:
+        pickle.dump(a, outf)
+    _log.info('saved model takes %d bytes', output.stat().st_size)
     logging.getLogger('lenskit').setLevel('INFO')
     try:
         _log.info('used threading layer %s', numba.threading_layer())
@@ -98,7 +105,7 @@ def predict_lenskit(c, algorithm='item-item', data='ml-100k', model=None, output
         output = 'build/lenskit/{}-{}-preds.csv'.format(algorithm, data)
     pair_file = 'build/pairs-{}.csv'.format(data)
     log = 'build/lenskit/{}-{}-predict.log'.format(algorithm, data)
-    
+
     lk = Path('lenskit/bin/lenskit')
     c.run('{} --log-file={} --log-file-level=DEBUG predict --data-source data/{}.yml -m {} -B {} -o {}'.format(lk, log, data, model, pair_file, output))
 
@@ -106,16 +113,17 @@ def predict_lenskit(c, algorithm='item-item', data='ml-100k', model=None, output
 @task
 def predict_lkpy(c, algorithm='item-item', data='ml-100k', model=None, output=None):
     if model is None:
-        model = 'build/lkpy/{}-{}.hdf'.format(algorithm, data)
+        model = 'build/lkpy/{}-{}.pkl'.format(algorithm, data)
+    model = Path(model)
     if output is None:
         output = 'build/lkpy/{}-{}-preds.csv'.format(algorithm, data)
     pair_file = 'build/pairs-{}.csv'.format(data)
 
     import algorithms
 
-    a = getattr(algorithms, algorithm.replace('-', '_'))
     _log.info('loading model from %s', model)
-    a.load(model)
+    with open(model, 'rb') as inf:
+        a = pickle.load(inf)
 
     pairs = pd.read_csv(pair_file, names=['user', 'item'])
     _log.info('predicting for %d pairs', len(pairs))
