@@ -1,4 +1,5 @@
-from lenskit.algorithms import item_knn, user_knn, funksvd, basic, als as alsm
+from lenskit.algorithms import item_knn, user_knn, funksvd, basic, als as alsm, bpr as bprm
+from tqdm import tqdm
 
 bias = basic.Bias(damping=5)
 
@@ -10,3 +11,4 @@ funksvd = funksvd.FunkSVD(15, iterations=125, lrate=0.001)
 
 als = alsm.BiasedMF(50, iterations=20, reg=0.1)
 als_implicit = alsm.ImplicitMF(50, iterations=20, reg=0.1)
+bpr = bprm.BPR(100, learning_rate=0.01, regularization=0.01, progress=tqdm)
