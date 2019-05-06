@@ -6,7 +6,10 @@ import logging, logging.config
 import yaml
 import sqlite3
 import pickle
-import resource
+try:
+    import resource
+except ImportError:
+    resource = None
 
 import numpy as np
 import pandas as pd
@@ -61,8 +64,9 @@ def train_lkpy(c, algorithm='item-item', data='ml-100k', output=None, debug=Fals
     a.fit(ds)
     elapsed = time.perf_counter() - start
     _log.info('trained %s on %s in %.2fs', a, data, elapsed)
-    res = resource.getrusage(resource.RUSAGE_SELF)
-    _log.info('%.2fs user, %.2fs system, %.1fMB max RSS', res.ru_utime, res.ru_stime, res.ru_maxrss / 1024)
+    if resource is not None:
+        res = resource.getrusage(resource.RUSAGE_SELF)
+        _log.info('%.2fs user, %.2fs system, %.1fMB max RSS', res.ru_utime, res.ru_stime, res.ru_maxrss / 1024)
     _log.info('saving model to %s', output)
     with open(output, 'wb') as outf:
         pickle.dump(a, outf)
