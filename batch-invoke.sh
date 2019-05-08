@@ -2,8 +2,8 @@
 
 hostname
 ulimit -v unlimited
-ulimit -u 512
+ulimit -u 2048
 ulimit -s 65536
-ulimit -a
+export MKL_THREADING_LAYER=tbb
 
 exec srun invoke "$@"
